@@ -1,0 +1,62 @@
+#version 430 core
+
+layout(binding=0) uniform samplerCube cubeshadow;
+uniform vec4 light_pos; //view space light pos
+uniform vec4 model_light_pos; //model space light pos
+uniform float radius;
+uniform mat4 inv_view;
+
+//per face view projection matrices
+uniform mat4 cube_viewproj[6];
+
+in vec4 pos; //model space pos
+in vec4 vs_pos;
+in vec3 vs_normal;
+
+layout(location=0) out vec4 color;
+
+float sqr( float x ){ return x * x; }
+
+void main()
+{
+  vec3 n = vs_normal;
+  vec3 l = (light_pos - vs_pos).xyz;
+  float d = length(l);
+  l = normalize(l);
+  
+  //calculate lighting
+  float att = (1 + d / radius);
+  att = 1.0 / sqr(att);
+  float n_dot_l = max( dot( n, l ), 0 ) * att;
+  
+  //shadows  
+  vec4 model_l = inv_view * vec4(l,0);
+  
+  float axis[6];
+  axis[0] = -model_l.x;
+  axis[1] = model_l.x;
+  axis[2] = -model_l.y;
+  axis[3] = model_l.y;
+  axis[4] = -model_l.z;
+  axis[5] = model_l.z;
+  
+  int max_axis = 0;
+  for( int c = 0; c < 6; ++c )
+    if( axis[max_axis] < axis[c] )
+      max_axis = c;
+      
+  vec3 ls_model_pos = pos.xyz - model_light_pos.xyz;
+      
+  vec4 ls_pos = cube_viewproj[max_axis] * vec4(ls_model_pos, 1);
+  ls_pos /= ls_pos.w;
+  
+  float ls_depth = ls_pos.z * 0.5 + 0.5;
+  float bias = 0.0005;
+  
+  vec3 texcoord = normalize(ls_model_pos);
+  float light_depth = texture(cubeshadow, texcoord).x;
+  
+  float shadow = float( ls_depth - bias <= light_depth );
+  
+  color = vec4( n_dot_l ) * shadow;
+}
