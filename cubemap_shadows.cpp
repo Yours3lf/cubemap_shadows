@@ -24,7 +24,7 @@ int main( int argc, char** argv )
   uvec2 screen( 0 );
   bool fullscreen = false;
   bool silent = false;
-  string title = "Basic CPP to get started";
+  string title = "Cubemap Shadows";
 
   /*
    * Process program arguments
@@ -53,7 +53,9 @@ int main( int argc, char** argv )
     args.at( "--fullscreen" );
     fullscreen = true;
   }
-  catch( ... ) {}
+  catch( ... )
+  {
+  }
 
   try
   {
@@ -66,14 +68,18 @@ int main( int argc, char** argv )
          "       --help        //display this information" << endl;
     return 0;
   }
-  catch( ... ) {}
+  catch( ... )
+  {
+  }
 
   try
   {
     args.at( "--silent" );
     silent = true;
   }
-  catch( ... ) {}
+  catch( ... )
+  {
+  }
 
   /*
    * Initialize the OpenGL context
@@ -107,7 +113,7 @@ int main( int argc, char** argv )
   float cam_near = 1.0f;
   float cam_far = 100.0f;
 
-  the_frame.set_perspective( radians( cam_fov ), ( float )screen.x / ( float )screen.y, cam_near, cam_far );
+  the_frame.set_perspective( radians( cam_fov ), (float)screen.x / (float)screen.y, cam_near, cam_far );
 
   glViewport( 0, 0, screen.x, screen.y );
 
@@ -122,7 +128,7 @@ int main( int argc, char** argv )
   mesh::load_into_meshes( "../resources/cubemap_shadow/mesh.obj", s );
   int counter = 0;
   for( auto& i : s.meshes )
-    i.write_mesh( "../resources/cubemap_shadow/mesh" + std::to_string(counter++) + ".mesh" );
+    i.write_mesh( "../resources/cubemap_shadow/mesh" + std::to_string( counter++ ) + ".mesh" );
 
   int nummeshes = 13;
 
@@ -136,8 +142,8 @@ int main( int argc, char** argv )
     scene[c].read_mesh( ss.str() );
   }
 
-for( auto & c : scene )
-    c.upload();
+  for( auto & c : scene )
+      c.upload();
 
   GLuint the_box = frm.create_box();
 
@@ -251,42 +257,42 @@ for( auto & c : scene )
    */
 
   bool warped = false, ignore = true;
-  vec2 movement_speed = vec2(0);
+  vec2 movement_speed = vec2( 0 );
 
   auto event_handler = [&]( const sf::Event & ev )
   {
     switch( ev.type )
     {
       case sf::Event::MouseMoved:
-        {
-          vec2 mpos( ev.mouseMove.x / float( screen.x ), ev.mouseMove.y / float( screen.y ) );
+      {
+                                  vec2 mpos( ev.mouseMove.x / float( screen.x ), ev.mouseMove.y / float( screen.y ) );
 
-          if( warped )
-          {
-            ignore = false;
-          }
-          else
-          {
-            frm.set_mouse_pos( ivec2( screen.x / 2.0f, screen.y / 2.0f ) );
-            warped = true;
-            ignore = true;
-          }
+                                  if( warped )
+                                  {
+                                    ignore = false;
+                                  }
+                                  else
+                                  {
+                                    frm.set_mouse_pos( ivec2( screen.x / 2.0f, screen.y / 2.0f ) );
+                                    warped = true;
+                                    ignore = true;
+                                  }
 
-          if( !ignore && all( notEqual( mpos, vec2( 0.5 ) ) ) )
-          {
-            cam.rotate( mm::radians( -180.0f * ( mpos.x - 0.5f ) ), mm::vec3( 0.0f, 1.0f, 0.0f ) );
-            cam.rotate_x( mm::radians( -180.0f * ( mpos.y - 0.5f ) ) );
-            frm.set_mouse_pos( ivec2( screen.x / 2.0f, screen.y / 2.0f ) );
-            warped = true;
-          }
-        }
+                                  if( !ignore && all( notEqual( mpos, vec2( 0.5 ) ) ) )
+                                  {
+                                    cam.rotate( mm::radians( -180.0f * ( mpos.x - 0.5f ) ), mm::vec3( 0.0f, 1.0f, 0.0f ) );
+                                    cam.rotate_x( mm::radians( -180.0f * ( mpos.y - 0.5f ) ) );
+                                    frm.set_mouse_pos( ivec2( screen.x / 2.0f, screen.y / 2.0f ) );
+                                    warped = true;
+                                  }
+      }
       case sf::Event::KeyPressed:
-        {
-          /*if( ev.key.code == sf::Keyboard::A )
-          {
-            cam.rotate_y( radians( cam_rotation_amount ) );
-          }*/
-        }
+      {
+                                  /*if( ev.key.code == sf::Keyboard::A )
+                                  {
+                                  cam.rotate_y( radians( cam_rotation_amount ) );
+                                  }*/
+      }
       default:
         break;
     }
@@ -457,25 +463,25 @@ for( auto & c : scene )
     /*cnt = 0;
     for( auto& c : light_frustums )
     {
-      cull_res[cnt] = 1;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[0] ) : 0;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[1] ) : 0;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[2] ) : 0;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[3] ) : 0;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[4] ) : 0;
-      cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[5] ) : 0;
+    cull_res[cnt] = 1;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[0] ) : 0;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[1] ) : 0;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[2] ) : 0;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[3] ) : 0;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[4] ) : 0;
+    cull_res[cnt] &= cull_res[cnt] ? camera_frustum.intersects( c.planes[5] ) : 0;
 
-      if( cull_res[cnt] )
-        passed++;
+    if( cull_res[cnt] )
+    passed++;
 
-      ++cnt;
+    ++cnt;
     }
 
     int a = 0;*/
 
-    char title[20];
-    itoa( passed, title, 10 );
-    frm.set_title( title );
+    //char title[20];
+    //itoa( passed, title, 10 );
+    //frm.set_title( title );
 
     /**
      * Render
@@ -499,8 +505,8 @@ for( auto & c : scene )
     glUniformMatrix4fv( shadow_viewproj_mat_loc, 6, false, &shadow_mats[0][0][0] );
     glUniformMatrix4fv( shadow_model_mat_loc, 1, false, &light_model_mat[0][0] );
 
-  for( auto& c : scene )
-      c.render();
+    for( auto& c : scene )
+        c.render();
 
     //render scene
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -520,7 +526,7 @@ for( auto & c : scene )
     glUniformMatrix4fv( lighting_p_mat_loc, 1, false, &projection[0][0] );
     glUniformMatrix4fv( lighting_normal_mat_loc, 1, false, &normal_mat[0][0] );
     glUniform4fv( lighting_model_light_pos_loc, 1, &light_pos.x );
-    vec4 vs_light_pos = mv* vec4(light_pos,1);
+    vec4 vs_light_pos = mv* vec4( light_pos, 1 );
     glUniform4fv( lighting_pos_loc, 1, &vs_light_pos.x );
     glUniform1fv( lighting_radius_loc, 1, &radius );
     mat4 inv_view = inverse( view );
@@ -530,8 +536,8 @@ for( auto & c : scene )
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_CUBE_MAP, cubemap_tex );
 
-  for( auto& c : scene )
-      c.render();
+    for( auto& c : scene )
+        c.render();
 
     //debug the cubemap
     glUseProgram( debug_shader );
