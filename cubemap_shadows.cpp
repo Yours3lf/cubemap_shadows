@@ -81,6 +81,7 @@ int main( int argc, char** argv )
 
   framework frm;
   frm.init( screen, title, fullscreen );
+  frm.set_vsync( true );
 
   //set opengl settings
   glEnable( GL_DEPTH_TEST );
@@ -301,7 +302,8 @@ for( auto & c : scene )
   sf::Clock movement_timer;
   movement_timer.restart();
 
-  vec4 light_pos = vec4( 0, 5, 4, 1 );
+  vec3 light_pos = vec3( 0, 0, 0 );
+  vec3 light_velocity = normalize( vec3( frm.get_random_num( 0, 1 ), frm.get_random_num( 0, 1 ), frm.get_random_num( 0, 1 ) ) ) * 5;
   vec3 light_movement = vec3( 0 );
   float light_movement_amount = 5;
 
@@ -324,6 +326,44 @@ for( auto & c : scene )
 
     if( seconds > 0.01667 )
     {
+      //move light
+      light_pos += light_velocity * 1 / 60.0f;
+
+      float halfFieldWidth = 5;
+      float halfFieldHeight = 5;
+
+      vec3 normal = vec3( 0, 0, 0 );
+      if( light_pos.x <= -halfFieldWidth )
+      {
+        normal = vec3( 1, 0, 0 );
+      }
+      else if( light_pos.x >= halfFieldWidth )
+      {
+        normal = vec3( -1, 0, 0 );
+      }
+      else if( light_pos.y <= -halfFieldHeight )
+      {
+        normal = vec3( 0, 1, 0 );
+      }
+      else if( light_pos.y >= halfFieldHeight )
+      {
+        normal = vec3( 0, -1, 0 );
+      }
+      else if( light_pos.z <= -halfFieldHeight )
+      {
+        normal = vec3( 0, 0, 1 );
+      }
+      else if( light_pos.z >= halfFieldHeight )
+      {
+        normal = vec3( 0, 0, -1 );
+      }
+
+      if( normal.x != 0 || normal.y != 0 || normal.z != 0 )
+      {
+        light_velocity = reflect( light_velocity, normal );
+      }
+
+
       //move camera
       if( sf::Keyboard::isKeyPressed( sf::Keyboard::A ) )
       {
@@ -480,7 +520,7 @@ for( auto & c : scene )
     glUniformMatrix4fv( lighting_p_mat_loc, 1, false, &projection[0][0] );
     glUniformMatrix4fv( lighting_normal_mat_loc, 1, false, &normal_mat[0][0] );
     glUniform4fv( lighting_model_light_pos_loc, 1, &light_pos.x );
-    vec4 vs_light_pos = mv* light_pos;
+    vec4 vs_light_pos = mv* vec4(light_pos,1);
     glUniform4fv( lighting_pos_loc, 1, &vs_light_pos.x );
     glUniform1fv( lighting_radius_loc, 1, &radius );
     mat4 inv_view = inverse( view );
